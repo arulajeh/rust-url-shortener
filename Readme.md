@@ -111,7 +111,7 @@ Ensure the following dependencies are added in `Cargo.toml`:
 {
     "short": "Ab3Xy9Zq"
 }
-
+```
 **Response (Success):**
 ```json
 {
