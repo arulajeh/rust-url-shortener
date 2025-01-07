@@ -35,13 +35,22 @@ pub async fn redirect_to_original(
 ) -> impl Responder {
     match url_repository::get_url_by_shorten(pool.get_ref(), &req.short).await {
         // Jika URL ditemukan
-        Ok(Some(record)) => HttpResponse::Ok().json(ApiResponse::success(
-            "Redirect URL found",
-            "SUCCESS200",
-            Some(RedirectResponse {
-                original_url: record.url,
-            }),
-        )),
+        Ok(Some(record)) => {
+            // Update counter
+            if let Err(e) = url_repository::update_counter(pool.get_ref(), &req.short).await {
+                return HttpResponse::InternalServerError().json(ApiResponse::<()>::error(
+                    &format!("Failed to update counter: {}", e),
+                    "ERROR500",
+                ));
+            }
+            HttpResponse::Ok().json(ApiResponse::success(
+                "Redirect URL found",
+                "SUCCESS200",
+                Some(RedirectResponse {
+                    original_url: record.url,
+                }),
+            ))
+        },
 
         // Jika URL tidak ditemukan
         Ok(None) => HttpResponse::NotFound().json(ApiResponse::<()>::error(

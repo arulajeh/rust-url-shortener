@@ -31,3 +31,18 @@ pub async fn get_url_by_shorten(pool: &PgPool, shorten: &str) -> Result<Option<U
 
     Ok(result)
 }
+
+/// update counter of a URL by its short key
+pub async fn update_counter(pool: &PgPool, shorten: &str) -> Result<()> {
+    sqlx::query!(
+        r#"
+        UPDATE urls
+        SET counter = counter + 1
+        WHERE shorten = $1
+        "#,
+        shorten
+    )
+        .execute(pool)
+        .await?;
+    Ok(())
+}
